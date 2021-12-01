@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>SVG</title>
+      <meta charset = "utf-8" />
+   </head>
+   <body>
+        <h1 align="center">SVG Wave<br>&nbsp;</h1>
+        <div style="border: solid red .2em; width: 1000px; margin: 0 auto;">
+            <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+                
+                <path fill="none" stroke="rgba(230,230,230,.1)"
+                    d= "M 25,20 h120
+                        M 25,35 h120
+                        M 10,50 h180
+                        M 55,65 h120
+                        M 55,80 h120"
+                />
+                <!-- Quadratic Bézier curve with implicit repetition -->
+                <path fill="none" stroke="red"
+                    d="M 10,50
+                        q 15,-30 30,0
+                        t 30,0 30,0 30,0 30,0 30,0" 
+                />
+                <!-- Highlight the curve vertex and control points -->
+                <g>
+                  <polyline points="10,50 25,20 40,50" stroke="rgba(0,0,0,.2)" fill="none" />
+                  <circle cx="25" cy="20" r="1.5" />
+              
+                  <!-- Curve vertex points -->
+                  <circle cx="10" cy="50" r="1.5"/>
+                  <circle cx="40" cy="50" r="1.5"/>
+              
+                  <g id="SmoothQuadraticDown">
+                    <polyline points="40,50 55,80 70,50" stroke="rgba(0,0,0,.2)" stroke-dasharray="2" fill="none" />
+                    <circle cx="55" cy="80" r="1.5" fill="lightgrey" />
+                    <circle cx="70" cy="50" r="1.5" />
+                  </g>
+              
+                  <g id="SmoothQuadraticUp">
+                    <polyline points="70,50 85,20 100,50" stroke="rgba(0,0,0,.2)" stroke-dasharray="2" fill="none" />
+                    <circle cx="85" cy="20" r="1.5" fill="lightgrey" />
+                    <circle cx="100" cy="50" r="1.5" />
+                  </g>
+
+                  <use xlink:href="#SmoothQuadraticDown" x="60" />
+                  <use xlink:href="#SmoothQuadraticUp"   x="60" />
+                  <use xlink:href="#SmoothQuadraticDown" x="120" />
+                </g>
+            
+                <path fill="none" stroke="rgba(0,0,0,.1)"
+                    d= "M 10,50 h180
+                        M 25,20 h120
+                        M 25,35 h120
+                        M 55,65 h120
+                        M 55,80 h120"
+                />
+              </svg>
+        </div>
+   </body>
+</html>
