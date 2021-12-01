@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+</head>
+
+<body>
+
+<div style="border:1px solid grey; height:200";>
+	<svg id="svgDest" viewbox="0 0 1000 200" >
+		<path d="M 400 150 Q 450 0 500 150" stroke="blue" stroke-width="1" fill="none" />
+		<path d="M0 4.35 L108 5.35 L180 6.35 L396 5.35 L432 6.35 L504 7.35 L540 9.35 L576 11.35 L612 13.35 L648 14.35 L684 15.35 L720 17.35 L792 15.35 L828 12.35 L864 11.35 L900 9.35 L972 8.35 L1008 7.35 L1044 6.35 L1080 5.35 L1116 4.35 L1260 3.35 L1296 5.35 L1332 6.35 L1404 7.35 L1440 9.35 L1476 11.35 L1512 13.35 L1548 14.35 L1620 13.35 L1656 11.35 L1692 9.35 L1728 7.35 L1764 6.35 L1800 5.35 L1836 4.35 L1908 3.35 L1980 2.35 L2052 1.35 L2124 2.35 L2196 4.35 L2232 6.35 L2268 8.35 L2304 10.35 L2340 12.35 L2376 13.35 L2412 15.35 L2448 16.35 L2556 15.35 L2592 14.35 L2628 13.35 L2664 12.35 L2700 11.35 L2736 10.35 L2808 9.35 L2880 8.35 L2952 7.35 L2988 6.35 L3060 7.35 L3096 10.35 L3132 12.35 L3168 14.35 L3204 17.35 L3240 19.35 L3276 20.35 L3384 18.35 L3420 16.35 L3456 14.35 L3492 12.35 L3528 11.35 L3564 10.35 L3600 9.35 L3636 8.35 L3672 7.35 L3708 6.35 L3744 5.35 L3816 4.35 L3924 5.35 L3960 7.35 L3996 9.35 L4032 11.35 L4068 13.35 L4104 15.35 L4140 16.35 L4176 17.35 L4284 16.35 L4320 15.35 L4392 14.35 L4500 15.35 L4608 14.35 L4644 13.35 L4788 15.35 L4824 17.35 L4860 19.35 L4896 21.35 L4932 24.35 L4968 26.35 L5004 27.35 L5040 28.35 L5112 27.35 L5148 25.35 L5184 23.35 L5220 22.35 L5256 21.35 L5292 20.35 L5364 19.35 L5400 18.35 L5472 17.35 L5544 16.35 L5688 17.35 L5724 18.35 L5760 19.35 L5796 21.35 L5832 22.35 L5976 20.35 L6012 19.35 L6048 17.35 " stroke="green" stroke-width="0.16534391534391535" transform="scale(0.16534391534391535,6.734006734006734)" fill="none"/>
+		<path id="pth1" />
+	</svg>
+</div>
+
+<script>
+
+    fillPath("pth1");
+    CreatePath();// I can't figure out why this works without internet connection since it has to go to namespace (http://www.w3.org/2000/svg)
+    getWgov();
+    
+    function CreatePath(){
+		let pth = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+		//let pth = document.createElement('path'); // this creates the path fine with all the proper attributes but does not display.
+
+		pth.setAttribute("d", "M 100 150 Q 350 0 600 150");
+		pth.setAttribute("stroke", "red");
+		pth.setAttribute("stroke-width", 1 );
+		pth.setAttribute("fill", "none");
+		
+		document.getElementById("svgDest").appendChild(pth);
+    }
+	 
+	function fillPath(pid){
+		let pth = document.getElementById(pid);
+		
+		pth.setAttribute("d", "M 200 150 Q 350 0 500 150");
+		pth.setAttribute("stroke", "yellow");
+		pth.setAttribute("stroke-width", 1 );
+		pth.setAttribute("fill", "none");
+		
+		document.getElementById("svgDest").appendChild(pth);
+	}
+
+    function getWgov(){
+    	
+	    fetch('https://api.weather.gov/gridpoints/LOT/65,54')
+	    .then(response => { if (!response.ok) { alert("not OK"); getWgov();} else return response.json()})  // convert the forecast into arrays
+	    .then(data => {
+	    	let ar = [];
+	        for (let te of data.properties.temperature.values) {
+	            te.value = (te.value * 1.8) + 32.0; // convert to fahrenhiet
+	            ar.push( [(new Date(te.validTime.substring(0,25)) ).valueOf()/100000, te.value]);
+	        }
+	        createPathFromArray(ar);
+	    })
+		.catch(error => {
+			alert("weather.gov error");
+		});
+	}
+	
+	function createPathFromArray(ar){ // create path element from 2 dimensional array
+		minX = ar[0][0];
+		maxX = minX;
+		minY = ar[0][1];
+		maxY = minY;
+		// get mins and maxs
+		for(i = 1; i < ar.length; i++){
+            if(ar[i][0] < minX) minX = ar[i][0];
+            if(ar[i][0] > maxX) maxX = ar[i][0];
+            if(ar[i][1] < minY) minY = ar[i][1];
+            if(ar[i][1] > maxY) maxY = ar[i][1];
+		}
+		let rangeX = maxX - minX;
+		let rangeY = maxY - minY;
+		let padY = rangeY * .05;
+		let st = "M" +  (ar[0][0] - minX) + " " + (ar[0][1] - minY + padY) + " ";
+		for(i = 1; i < ar.length; i++){
+			st += "L" +  (ar[i][0] - minX) + " " + (ar[i][1] - minY + padY) + " ";
+		}
+		
+		//let pth = document.createElement('path'); // this creates the path fine with all the proper attributes but does not display.
+		let pth = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+		
+		pth.setAttribute("d", st);
+		pth.setAttribute("stroke", "blue");
+		//transform's scale X = parent attr viewbox's width / rangeX="green"
+		//transform's scale Y = parent attr viewbox's height / (rangey + two times padding)
+		pth.setAttribute("transform", "scale(" + (1000/rangeX) +"," + (200 /(rangeY + padY * 2)) + ")");
+		// stroke-width = the lesser of transform's scale X or scale Y
+		pth.setAttribute("stroke-width", (1000/rangeX) ); // have to change this to lesser of transform's scale X or scale Y
+		pth.setAttribute("fill", "none");
+	
+		document.getElementById("svgDest").appendChild(pth);
+		
+		//alert(st + "      " + padY + " " + (1000/rangeX) + " " + (200 /(rangeY + padY * 2)) );
+	}
+
+</script>
+
+</body>
+</html>
+
